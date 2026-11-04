@@ -54,16 +54,57 @@
 
   <!-- Dashboard screen -->
   <main id="dashboard-view" class="view hidden">
-    <div class="card">
-      <h1 class="brand">Sahara Lite</h1>
-      <h2>Dashboard</h2>
+    <div class="dashboard-wrap">
 
-      <div class="profile">
-        <p><span class="label">Name:</span> <span id="user-name"></span></p>
-        <p><span class="label">Email:</span> <span id="user-email"></span></p>
+      <!-- Profile card -->
+      <div class="card">
+        <h1 class="brand">Sahara Lite</h1>
+        <h2>Dashboard</h2>
+
+        <div class="profile">
+          <p><span class="label">Name:</span> <span id="user-name"></span></p>
+          <p><span class="label">Email:</span> <span id="user-email"></span></p>
+        </div>
+
+        <button id="logout-btn" class="btn btn-secondary" type="button">Logout</button>
       </div>
 
-      <button id="logout-btn" class="btn btn-secondary" type="button">Logout</button>
+      <!-- Naya help request banane ka form -->
+      <div class="card">
+        <h2>Help Request banao</h2>
+
+        <p id="request-message" class="message" role="alert"></p>
+
+        <form id="request-form">
+          <label for="request-title">Title</label>
+          <input type="text" id="request-title" placeholder="Jaise: Bachon ki padhai ke liye kitabein" maxlength="100" required />
+
+          <label for="request-description">Description</label>
+          <textarea id="request-description" placeholder="Madad ki zarurat ke baare me likho" maxlength="1000" rows="4" required></textarea>
+
+          <label for="request-category">Category</label>
+          <select id="request-category">
+            <option value="food">Food</option>
+            <option value="medical">Medical</option>
+            <option value="education">Education</option>
+            <option value="shelter">Shelter</option>
+            <option value="clothes">Clothes</option>
+            <option value="other" selected>Other</option>
+          </select>
+
+          <label for="request-amount">Amount (optional, ₹)</label>
+          <input type="number" id="request-amount" placeholder="0" min="0" />
+
+          <button type="submit" class="btn">Request submit karo</button>
+        </form>
+      </div>
+
+      <!-- Open requests ki list -->
+      <div class="card">
+        <h2>Open Requests</h2>
+        <div id="requests-list"></div>
+      </div>
+
     </div>
   </main>
 

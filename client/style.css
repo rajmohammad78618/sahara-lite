@@ -204,3 +204,91 @@ form input:focus {
     font-size: 1.5rem;
   }
 }
+/* ---------- Dashboard layout (naye cards) ---------- */
+#dashboard-view {
+  align-items: flex-start;
+}
+
+.dashboard-wrap {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-wrap .card {
+  max-width: 100%;
+}
+
+/* ---------- Textarea aur dropdown ---------- */
+form textarea,
+form select {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fff;
+  outline: none;
+  transition: 0.2s;
+}
+
+form textarea {
+  resize: vertical;
+}
+
+form textarea:focus,
+form select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* ---------- Requests ki list ---------- */
+.request-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.request-item:last-child {
+  margin-bottom: 0;
+}
+
+.request-item h3 {
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+
+.request-item p {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+
+.request-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.badge {
+  background: #e0e7ff;
+  color: var(--primary-dark);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.empty-text {
+  text-align: center;
+  color: var(--muted);
+}

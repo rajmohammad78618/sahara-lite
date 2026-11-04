@@ -1,5 +1,5 @@
 // ---------- Settings ----------
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = 'http://localhost:5000/api';
 
 // ---------- HTML elements ----------
 const loadingView = document.getElementById('loading-view');
@@ -16,6 +16,10 @@ const userName = document.getElementById('user-name');
 const userEmail = document.getElementById('user-email');
 const logoutBtn = document.getElementById('logout-btn');
 
+const requestForm = document.getElementById('request-form');
+const requestMessage = document.getElementById('request-message');
+const requestsList = document.getElementById('requests-list');
+
 // ---------- Helper functions ----------
 function showView(name) {
   loadingView.classList.toggle('hidden', name !== 'loading');
@@ -23,14 +27,22 @@ function showView(name) {
   dashboardView.classList.toggle('hidden', name !== 'dashboard');
 }
 
+function setMessage(box, text, type) {
+  box.textContent = text;
+  box.className = 'message ' + type; // "message error" ya "message success"
+}
+
+function clearBox(box) {
+  box.textContent = '';
+  box.className = 'message';
+}
+
 function showMessage(text, type) {
-  messageBox.textContent = text;
-  messageBox.className = 'message ' + type; // "message error" ya "message success"
+  setMessage(messageBox, text, type);
 }
 
 function clearMessage() {
-  messageBox.textContent = '';
-  messageBox.className = 'message';
+  clearBox(messageBox);
 }
 
 function switchTab(tab) {
@@ -64,6 +76,79 @@ async function apiRequest(path, options = {}) {
   }
 }
 
+// ---------- Help requests ki list ----------
+function renderRequests(requests) {
+  requestsList.innerHTML = '';
+
+  if (requests.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-text';
+    empty.textContent = 'Abhi koi open request nahi hai.';
+    requestsList.appendChild(empty);
+    return;
+  }
+
+  requests.forEach((r) => {
+    const item = document.createElement('div');
+    item.className = 'request-item';
+
+    const title = document.createElement('h3');
+    title.textContent = r.title;
+
+    const desc = document.createElement('p');
+    desc.textContent = r.description;
+
+    const meta = document.createElement('div');
+    meta.className = 'request-meta';
+
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = r.category;
+    meta.appendChild(badge);
+
+    if (r.amount > 0) {
+      const amount = document.createElement('span');
+      amount.textContent = '₹' + r.amount;
+      meta.appendChild(amount);
+    }
+
+    const by = document.createElement('span');
+    const ownerName = r.createdBy && r.createdBy.name ? r.createdBy.name : 'Unknown';
+    by.textContent = 'by ' + ownerName;
+    meta.appendChild(by);
+
+    const date = document.createElement('span');
+    date.textContent = new Date(r.createdAt).toLocaleDateString('en-IN');
+    meta.appendChild(date);
+
+    item.appendChild(title);
+    item.appendChild(desc);
+    item.appendChild(meta);
+    requestsList.appendChild(item);
+  });
+}
+
+async function loadRequests() {
+  const result = await apiRequest('/requests');
+
+  if (result.ok) {
+    renderRequests(result.data.requests);
+    return;
+  }
+
+  if (result.status === 401) {
+    localStorage.removeItem('token');
+    showView('auth');
+    return;
+  }
+
+  requestsList.innerHTML = '';
+  const err = document.createElement('p');
+  err.className = 'empty-text';
+  err.textContent = result.data.message || 'Requests load nahi ho payi';
+  requestsList.appendChild(err);
+}
+
 // ---------- Check: user logged in hai ya nahi ----------
 async function checkAuth() {
   const token = localStorage.getItem('token');
@@ -73,12 +158,13 @@ async function checkAuth() {
     return;
   }
 
-  const result = await apiRequest('/profile');
+  const result = await apiRequest('/auth/profile');
 
   if (result.ok) {
     userName.textContent = result.data.user.name;
     userEmail.textContent = result.data.user.email;
     showView('dashboard');
+    loadRequests();
     return;
   }
 
@@ -108,7 +194,7 @@ registerForm.addEventListener('submit', async (e) => {
   const email = document.getElementById('register-email').value.trim();
   const password = document.getElementById('register-password').value;
 
-  const result = await apiRequest('/register', {
+  const result = await apiRequest('/auth/register', {
     method: 'POST',
     body: JSON.stringify({ name, email, password }),
   });
@@ -136,7 +222,7 @@ loginForm.addEventListener('submit', async (e) => {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
 
-  const result = await apiRequest('/login', {
+  const result = await apiRequest('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
@@ -152,11 +238,45 @@ loginForm.addEventListener('submit', async (e) => {
   }
 });
 
+// ---------- Naya help request submit karna ----------
+requestForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearBox(requestMessage);
+
+  const btn = requestForm.querySelector('button[type="submit"]');
+  btn.disabled = true;
+
+  const title = document.getElementById('request-title').value.trim();
+  const description = document.getElementById('request-description').value.trim();
+  const category = document.getElementById('request-category').value;
+  const amount = Number(document.getElementById('request-amount').value) || 0;
+
+  const result = await apiRequest('/requests', {
+    method: 'POST',
+    body: JSON.stringify({ title, description, category, amount }),
+  });
+
+  btn.disabled = false;
+
+  if (result.ok) {
+    requestForm.reset();
+    setMessage(requestMessage, 'Request submit ho gayi!', 'success');
+    loadRequests();
+  } else if (result.status === 401) {
+    localStorage.removeItem('token');
+    showView('auth');
+  } else {
+    setMessage(requestMessage, result.data.message || 'Request submit nahi hui', 'error');
+  }
+});
+
 // ---------- Logout ----------
 logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('token');
   userName.textContent = '';
   userEmail.textContent = '';
+  requestsList.innerHTML = '';
+  clearBox(requestMessage);
   switchTab('login');
   showView('auth');
 });
