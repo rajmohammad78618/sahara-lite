@@ -292,3 +292,44 @@ form select:focus {
   text-align: center;
   color: var(--muted);
 }
+
+
+/* ---------- Request ke buttons (Fulfilled / Delete) ---------- */
+.request-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-small {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-small:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-fulfill {
+  background: #16a34a;
+}
+
+.btn-fulfill:hover {
+  background: #15803d;
+}
+
+.btn-delete {
+  background: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+}

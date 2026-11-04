@@ -1,6 +1,9 @@
 // ---------- Settings ----------
 const API_URL = 'http://localhost:5000/api';
 
+// Logged-in user ki id (checkAuth me set hoti hai)
+let currentUserId = null;
+
 // ---------- HTML elements ----------
 const loadingView = document.getElementById('loading-view');
 const authView = document.getElementById('auth-view');
@@ -76,6 +79,53 @@ async function apiRequest(path, options = {}) {
   }
 }
 
+// ---------- Request ko fulfilled mark karna ----------
+async function fulfillRequest(id, btn) {
+  btn.disabled = true;
+  clearBox(requestMessage);
+
+  const result = await apiRequest('/requests/' + id + '/fulfill', {
+    method: 'PATCH',
+  });
+
+  if (result.ok) {
+    setMessage(requestMessage, 'Request fulfilled mark ho gayi!', 'success');
+    loadRequests();
+  } else if (result.status === 401) {
+    localStorage.removeItem('token');
+    showView('auth');
+  } else {
+    btn.disabled = false;
+    setMessage(requestMessage, result.data.message || 'Request update nahi hui', 'error');
+  }
+}
+
+// ---------- Request ko delete karna ----------
+async function deleteRequest(id, btn) {
+  const sure = confirm('Kya tum sach me ye request delete karna chahte ho?');
+  if (!sure) {
+    return;
+  }
+
+  btn.disabled = true;
+  clearBox(requestMessage);
+
+  const result = await apiRequest('/requests/' + id, {
+    method: 'DELETE',
+  });
+
+  if (result.ok) {
+    setMessage(requestMessage, 'Request delete ho gayi!', 'success');
+    loadRequests();
+  } else if (result.status === 401) {
+    localStorage.removeItem('token');
+    showView('auth');
+  } else {
+    btn.disabled = false;
+    setMessage(requestMessage, result.data.message || 'Request delete nahi hui', 'error');
+  }
+}
+
 // ---------- Help requests ki list ----------
 function renderRequests(requests) {
   requestsList.innerHTML = '';
@@ -124,6 +174,32 @@ function renderRequests(requests) {
     item.appendChild(title);
     item.appendChild(desc);
     item.appendChild(meta);
+
+    // Buttons sirf apni request par dikhenge
+    const isMine =
+      currentUserId && r.createdBy && r.createdBy._id === currentUserId;
+
+    if (isMine) {
+      const actions = document.createElement('div');
+      actions.className = 'request-actions';
+
+      const fulfillBtn = document.createElement('button');
+      fulfillBtn.type = 'button';
+      fulfillBtn.className = 'btn-small btn-fulfill';
+      fulfillBtn.textContent = 'Fulfilled';
+      fulfillBtn.addEventListener('click', () => fulfillRequest(r._id, fulfillBtn));
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'btn-small btn-delete';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', () => deleteRequest(r._id, deleteBtn));
+
+      actions.appendChild(fulfillBtn);
+      actions.appendChild(deleteBtn);
+      item.appendChild(actions);
+    }
+
     requestsList.appendChild(item);
   });
 }
@@ -163,6 +239,7 @@ async function checkAuth() {
   if (result.ok) {
     userName.textContent = result.data.user.name;
     userEmail.textContent = result.data.user.email;
+    currentUserId = result.data.user._id || result.data.user.id;
     showView('dashboard');
     loadRequests();
     return;
@@ -273,6 +350,7 @@ requestForm.addEventListener('submit', async (e) => {
 // ---------- Logout ----------
 logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('token');
+  currentUserId = null;
   userName.textContent = '';
   userEmail.textContent = '';
   requestsList.innerHTML = '';
