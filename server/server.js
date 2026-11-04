@@ -10,6 +10,8 @@ app.use(cors());
 app.use(express.json());
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
+const helpRequestRoutes = require('./routes/helpRequests');
+app.use('/api/requests', helpRequestRoutes);
 
 app.get('/', (req, res) => {
   res.send('Sahara Lite API chal rahi hai');
