@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sahara Lite</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Loading screen -->
+  <div id="loading-view" class="view">
+    <p>Loading...</p>
+  </div>
+
+  <!-- Login / Register screen -->
+  <main id="auth-view" class="view hidden">
+    <div class="card">
+      <h1 class="brand">Sahara Lite</h1>
+
+      <div class="tabs">
+        <button id="tab-login" class="tab active" type="button">Login</button>
+        <button id="tab-register" class="tab" type="button">Register</button>
+      </div>
+
+      <p id="message" class="message" role="alert"></p>
+
+      <!-- Login form -->
+      <form id="login-form">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" required />
+
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Password" required />
+
+        <button type="submit" class="btn">Login</button>
+      </form>
+
+      <!-- Register form -->
+      <form id="register-form" class="hidden">
+        <label for="register-name">Name</label>
+        <input type="text" id="register-name" placeholder="Your name" required />
+
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" placeholder="you@example.com" required />
+
+        <label for="register-password">Password</label>
+        <input type="password" id="register-password" placeholder="Min 6 characters" minlength="6" required />
+
+        <button type="submit" class="btn">Register</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Dashboard screen -->
+  <main id="dashboard-view" class="view hidden">
+    <div class="card">
+      <h1 class="brand">Sahara Lite</h1>
+      <h2>Dashboard</h2>
+
+      <div class="profile">
+        <p><span class="label">Name:</span> <span id="user-name"></span></p>
+        <p><span class="label">Email:</span> <span id="user-email"></span></p>
+      </div>
+
+      <button id="logout-btn" class="btn btn-secondary" type="button">Logout</button>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
